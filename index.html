@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkilVara - Explore and Share</title>
+
+<!-- NEW: Place Firebase and AdSense SDKs here, before your main script -->
+<!-- FIREBASE SDK SCRIPTS GO HERE -->
+https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCfzd9dDA_f0t5PAxhMBz4jt-8efhN6Egs",
+  authDomain: "edu-e526a.firebaseapp.com",
+  databaseURL: "https://edu-e526a-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "edu-e526a",
+  storageBucket: "edu-e526a.firebasestorage.app",
+  messagingSenderId: "352503061648",
+  appId: "1:352503061648:web:3728984b927e4753e78c15"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+<!- GOOGLE ADSENSE SCRIPT GOES HERE -->
+<!-- Example: -->
+<!--
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_CLIENT_ID"
+     crossorigin="anonymous"></script>
+-->
+
+<style>
+  :root {
+    /* UPDATED: Light theme color palette */
+    --primary-color: #007bff;
+    --primary-glow: #0056b3;
+    --background-dark: #f8f9fa; /* White background */
+    --content-bg: rgba(255, 255, 255, 0.95);
+    --text-color: #212529; /* Dark text for readability */
+    --text-accent: #0056b3;
+    --text-secondary: #6c757d;
+    --border-color: #dee2e6;
+    --like-color: #ff4444;
+    --success-color: #28a745;
+    --support-color: #ffcc00;
+    --edit-color: #44aaff;
+    --message-admin-color: #9c27b0;
+    --message-admin-glow: #7b1fa2;
+  }
+  html, body {
+    height: 100%;
+    margin: 0;
+    overflow-x: hidden;
+  }
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--background-dark); /* Using the new white background */
+    background-size: cover;
+    background-attachment: fixed;
+    color: var(--text-color); /* Using the new dark text color */
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  h1, h2 {
+    text-align: center;
+    color: var(--primary-color);
+    text-shadow: none; /* Removed glow for better readability on light bg */
+  }
+  .main-container {
+    max-width: 1200px;
+    width: 95%;
+    margin: auto;
+    overflow-y: auto;
+    max-height: 98vh;
+  }
+  .view {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.4s ease-in-out;
+    position: relative;
+  }
+  .view.visible {
+      display: block;
+      opacity: 1;
+  }
+  .content-section, .posts-section-container, .subject-selection-section {
+    background: var(--content-bg);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin-bottom: 25px;
+    position: relative;
+    border: 1px solid var(--border-color);
+  }
+  .subject-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    justify-content: center;
+  }
+  .subject-item {
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    font-size: 1em;
+    color: var(--text-color);
+  }
+  .subject-item:hover {
+    background: #e9ecef;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transform: translateY(-3px);
+  }
+  .subject-item.selected {
+      background: var(--primary-color);
+      color: #fff; /* White text on colored background */
+      font-weight: bold;
+      box-shadow: 0 5px 15px rgba(0, 123, 255, 0.4);
+      transform: translateY(-5px);
+  }
+  .action-button, .form-field button, #back-to-subjects-btn, .back-btn, #upload-form button, .comment-form button, #join-btn, .confirm-btn, .search-container button, .payment-request-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--primary-color), var(--primary-glow));
+    color: #ffffff; /* White text on buttons */
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    font-size: 1.1em;
+    width: 100%;
+  }
+  .action-button:hover, .form-field button:hover, #back-to-subjects-btn:hover, .back-btn:hover, #upload-form button:hover, .comment-form button:hover, #join-btn:hover, .confirm-btn:hover, .search-container button:hover, .payment-request-btn:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.5);
+    transform: translateY(-2px);
+  }
+  #message-admin-btn {
+      background: linear-gradient(90deg, var(--message-admin-color), var(--message-admin-glow));
+      box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
+  }
+  #message-admin-btn:hover {
+      box-shadow: 0 6px 20px rgba(156, 39, 176, 0.5);
+  }
+  .action-button:disabled, .payment-request-btn:disabled {
+      background: #adb5bd;
+      cursor: not-allowed;
+      box-shadow: none;
+  }
+  .payment-request-btn {
+      width: auto;
+      font-size: 0.9em;
+      padding: 8px 15px;
+      margin-left: 15px;
+      background: linear-gradient(90deg, var(--support-color), #ffae00);
+      color: #212529; /* Dark text for yellow button */
+  }
+  #landing-view .content-section {
+      text-align: center;
+  }
+  #landing-view .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 400px;
+      margin: 40px auto 0;
+  }
+  #join-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      padding: 10px 25px;
+      font-size: 1em;
+      width: auto;
+  }
+  .close-btn {
+      position: absolute;
+      top: -5px;
+      right: 0;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.5em;
+      cursor: pointer;
+      line-height: 1;
+      padding: 10px;
+      transition: color 0.2s;
+      z-index: 10;
+  }
+  .close-btn:hover {
+      color: var(--text-color);
+  }
+  .form-field {
+      margin-bottom: 20px;
+  }
+  .form-field label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: var(--text-color);
+  }
+  .form-field input, .form-field select, .form-field textarea {
+      width: 100%;
+      padding: 12px;
+      background: #ffffff; /* White background for inputs */
+      border: 1px solid var(--border-color);
+      color: var(--text-color); /* Dark text for inputs */
+      border-radius: 8px;
+      box-sizing: border-box;
+      resize: vertical;
+  }
+  .uploader-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+  }
+  .uploader-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--primary-color);
+  }
+  .uploader-name {
+    font-size: 1em;
+    color: var(--text-accent);
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  .uploader-name:hover {
+    color: var(--primary-color);
+  }
+  .uploader-details {
+      font-size: 0.8em;
+      color: var(--text-secondary);
+  }
+  .uploader-bio {
+    font-size: 0.9em;
+    color: #343a40;
+    background: #e9ecef;
+    padding: 8px;
+    border-radius: 5px;
+    margin-top: 8px;
+    margin-bottom: 10px;
+    border-left: 3px solid var(--primary-color);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .post {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background: #ffffff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    position: relative;
+  }
+  .post p {
+    margin: 0 0 10px 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .post .post-timestamp { font-size: 0.75em; color: #6c757d; margin-bottom: 15px; }
+  .post img, .post video { max-width: 100%; border-radius: 8px; margin-top: 10px; }
+  .empty-posts-message { text-align: center; padding: 100px; color: var(--text-secondary); }
+  .post-actions { display: flex; align-items: center; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
+  .like-btn { cursor: pointer; font-size: 1.5em; transition: all 0.2s; user-select: none; color: #ced4da; }
+  .like-btn.liked { color: var(--like-color); transform: scale(1.2); }
+  .comment-section { margin-top: 15px; border-top: 1px solid #e9ecef; padding-top: 15px; }
+  .comment-form textarea { width: 100%; padding: 10px; background: #ffffff; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 8px; box-sizing: border-box; resize: vertical; }
+  .comment-form button { margin-top: 10px; width: 100%; }
+  .comment { background: #f8f9fa; padding: 10px; border-radius: 8px; margin-top: 10px; position: relative; }
+  .comment .commenter-id { font-size: 0.7em; color: #495057; font-weight: bold; }
+  .comment .comment-timestamp { font-size: 0.7em; color: #6c757d; margin-top: 4px; }
+  .delete-comment-btn { position: absolute; top: 5px; right: 5px; background: none; border: none; color: var(--like-color); cursor: pointer; font-size: 1.2em; opacity: 0.7; transition: opacity 0.2s; }
+  .delete-comment-btn:hover { opacity: 1; }
+  #upload-form textarea, #upload-form input[type="file"] { width: 100%; padding: 12px; margin-bottom: 15px; background: #ffffff; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 8px; box-sizing: border-box; }
+  .post-top-buttons { position: absolute; top: 10px; right: 10px; display: flex; gap: 5px; }
+  .post-top-buttons button { padding: 5px 10px; border: none; color: white; font-weight: bold; border-radius: 5px; cursor: pointer; transition: background 0.2s; }
+  .delete-post-btn { background: var(--like-color); }
+  .delete-post-btn:hover { background: #cc2222; }
+  .edit-post-btn { background: var(--edit-color); }
+  .edit-post-btn:hover { background: #2288dd; }
+  .post-interactions { display: flex; align-items: center; margin-top: 15px; border-top: 1px solid #e9ecef; padding-top: 15px; flex-wrap: wrap; }
+  .likes-display { font-weight: bold; color: #e8590c; margin-left: 15px; }
+  .comments-container { max-height: 200px; overflow-y: auto; padding-right: 10px; width: 100%; margin-top: 15px;}
+  .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
+  .search-container input { flex-grow: 1; padding: 12px; background: #ffffff; border: 1px solid var(--border-color); color: var(--text-color); border-radius: 8px; }
+  .search-container button { width: auto; font-size: 1em; padding: 12px 20px; }
+
+  /* NEW: Styles for the content filter buttons */
+  .filter-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    background-color: #fff;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  .filter-btn:hover {
+    background-color: #e9ecef;
+  }
+  .filter-btn.active {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+    font-weight: bold;
+  }
+  
+  #custom-alert-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+  #custom-alert-box { background: #ffffff; padding: 30px; border-radius: 15px; border: 1px solid var(--border-color); box-shadow: 0 5px 25px rgba(0,0,0,0.15); text-align: center; max-width: 400px; width: 90%; }
+  #custom-alert-message { color: var(--text-color); font-size: 1.1em; margin: 0 0 25px 0; line-height: 1.5; white-space: pre-wrap;}
+  #custom-alert-buttons { display: flex; gap: 15px; justify-content: center; }
+  #custom-alert-buttons button { width: 120px; }
+  #custom-alert-buttons button.cancel { background: #6c757d; }
+  #custom-alert-buttons button.cancel:hover { background: #5a6268; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+
+  .back-btn {
+      position: absolute;
+      top: 1px;
+      left: 1px;
+      width: auto;
+      font-size: 1em;
+      padding: 2px 3px;
+      z-index: 4;
+  }
+  #viewer-posts-view .posts-section-container, #uploader-profile-view .posts-section-container {
+      margin-top: 40px;
+      padding-top: 40px;
+  }
+
+  /* UPDATED: Logout button is already here */
+  #logout-btn {
+      position: absolute;
+      top: 10px;
+      left: 15px;
+      padding: 10px 25px;
+      font-size: 1em;
+      width: auto;
+      background: linear-gradient(90deg, #ff4444, #cc2222);
+      box-shadow: 0 4px 12px rgba(255,68,68,0.3);
+  }
+  #logout-btn:hover {
+      box-shadow: 0 6px 20px rgba(255,68,68,0.5);
+  }
+  .profile-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 20px;
+    border-bottom: 2px solid var(--primary-color);
+  }
+  .profile-header img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid var(--primary-color);
+  }
+  .profile-header h2 { margin: 5px 0; }
+  .profile-header p { margin: 2px 0; color: var(--text-secondary); }
+  .profile-header .bio { color: var(--text-accent); margin-top: 10px; }
+  
+  .file-download-link {
+    display: inline-block;
+    background: var(--success-color);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-top: 10px;
+    font-weight: bold;
+    margin-left: 10px;
+    font-size: 0.9em;
+    cursor: pointer;
+  }
+  .file-download-link:hover {
+      background: #218838;
+  }
+
+  .follow-btn {
+      width: auto;
+      font-size: 1em;
+      padding: 10px 25px;
+      margin-top: 15px;
+      background: linear-gradient(90deg, var(--success-color), #1a9933);
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  }
+  .follow-btn:hover {
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
+  }
+  .follow-btn.followed {
+      background: #6c757d;
+      box-shadow: none;
+  }
+  .profile-stats {
+      margin-top: 10px;
+      font-size: 1.1em;
+      color: var(--text-accent);
+  }
+</style>
+</head>
+<body>
+<div id="main-container" class="main-container">
+
+<!-- VIEW 0: LANDING PAGE -->
+<div id="landing-view" class="view">
+    <div class="content-section">
+        <button id="join-btn">Join</button>
+        <h1>🚀 Welcome to SkilVara</h1>
+        <p style="text-align:center;">Your platform for learning and sharing knowledge.</p>
+        <div class="button-container">
+            <button class="action-button" id="go-to-viewer-btn">📚 Explore Content</button>
+            <button class="action-button" id="message-admin-btn">📨 Message Admin</button>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW 1: UPLOADER REGISTRATION -->
+<div id="uploader-registration-view" class="view">
+    <div class="content-section">
+        <button class="close-btn" onclick="showView('landing-view')">✖️</button>
+        <h1>Create Your Uploader Profile</h1>
+        <p style="text-align:center; color: var(--text-secondary);">Your chosen subject will be permanent.</p>
+        <form id="uploader-reg-form">
+            <div class="form-field">
+                <label for="uploader-name">Unique Name</label>
+                <input type="text" id="uploader-name" required>
+            </div>
+            <div class="form-field">
+                <label for="uploader-avatar">Avatar (Optional)</label>
+                <input type="file" id="uploader-avatar" accept="image/*">
+            </div>
+            <div class="form-field">
+                <label for="uploader-state">State</label>
+                <input type="text" id="uploader-state" required>
+            </div>
+            <div class="form-field">
+                <label for="uploader-profession">Profession / Qualification</label>
+                <input type="text" id="uploader-profession" required>
+            </div>
+            <div class="form-field">
+                <label for="uploader-bio">Short Bio</label>
+                <textarea id="uploader-bio" rows="3" placeholder="Tell us about your expertise..."></textarea>
+            </div>
+            <div class="form-field">
+                <label for="uploader-reg-subject">Choose Your Permanent Subject</label>
+                <select id="uploader-reg-subject" required>
+                </select>
+            </div>
+
+            <hr style="margin: 25px 0; border: 1px solid var(--border-color);">
+            <h3 style="text-align:center; color: var(--primary-color);">Payment Details</h3>
+            <p style="text-align:center; font-size: 0.9em; color: var(--text-secondary); margin-top: -10px; margin-bottom: 20px;">
+                Add your payment details to receive payments for your content.
+            </p>
+            <div class="form-field">
+                <label for="payment-method-options">Payment Method</label>
+                <select id="payment-method-options">
+                    <option value="upi">UPI</option>
+                    <option value="bank">Bank Account</option>
+                </select>
+            </div>
+            <div id="upi-details" class="payment-details">
+                <div class="form-field">
+                    <label for="upi-id">UPI ID</label>
+                    <input type="text" id="upi-id" placeholder="yourname@bank">
+                </div>
+            </div>
+            <div id="bank-details" class="payment-details" style="display: none;">
+                <div class="form-field">
+                    <label for="account-holder-name">Account Holder Name</label>
+                    <input type="text" id="account-holder-name">
+                </div>
+                <div class="form-field">
+                    <label for="account-number">Account Number</label>
+                    <input type="text" id="account-number">
+                </div>
+                <div class="form-field">
+                    <label for="ifsc-code">IFSC Code</label>
+                    <input type="text" id="ifsc-code">
+                </div>
+            </div>
+
+            <div class="form-field">
+                <button type="submit">Confirm Registration</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- VIEW 2: VIEWER - SUBJECT SELECTION -->
+<div id="viewer-subject-selection-view" class="view">
+    <button class="close-btn" onclick="showView('landing-view')">✖️</button>
+    <div class="subject-selection-section">
+        <h1>📚 Choose a Subject to Explore</h1>
+        <div id="viewer-subject-grid" class="subject-grid"></div>
+    </div>
+</div>
+
+<!-- VIEW 3: VIEWER - POSTS -->
+<div id="viewer-posts-view" class="view">
+    <div class="posts-section-container">
+         <button id="back-to-subjects-btn" class="back-btn">← Back to Subjects</button>
+         <h2 id="posts-heading"></h2>
+         
+         <!-- NEW: Content type filter buttons added here -->
+         <div class="filter-container">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="image">Images</button>
+            <button class="filter-btn" data-filter="application">PDFs</button>
+            <button class="filter-btn" data-filter="video">Videos</button>
+         </div>
+         
+         <div class="search-container">
+            <input type="text" id="state-search-input" placeholder="Filter by state...">
+            <button id="state-search-btn">Search</button>
+        </div>
+        <div id="posts-container"></div>
+    </div>
+</div>
+
+<!-- VIEW 4: UPLOADER - DASHBOARD -->
+<div id="uploader-view" class="view">
+     <button class="close-btn" onclick="showView('landing-view')">✖️</button>
+     <!-- The Logout Button is already here on the top-left -->
+     <button id="logout-btn">Logout</button>
+    <div id="uploader-verification-section" class="content-section">
+        <h1>👋 Welcome, Uploader!</h1>
+        <h2 id="uploader-verification-prompt"></h2>
+        <div id="uploader-subject-grid" class="subject-grid"></div>
+    </div>
+      
+    <div id="uploader-dashboard-section" style="display: none;">
+        <div class="content-section" style="text-align: center;">
+            <h1 id="uploader-heading"></h1>
+            <div id="uploader-stats-display" class="profile-stats"></div>
+        </div>
+         <div class="content-section">
+            <h2>New Post</h2>
+            <form id="upload-form">
+                <input type="hidden" id="editing-post-timestamp">
+                <textarea id="post-text" rows="5" placeholder="Share something interesting..." required></textarea>
+                <label for="post-image" style="display:block; margin-bottom: 5px;">Upload an Image (JPG, PNG), PDF, or Video (Optional):</label>
+                <!-- UPDATED: Accept attribute to include video -->
+                <input type="file" id="post-file" accept="image/jpeg,image/png,application/pdf,video/*" style="margin-bottom: 20px;">
+                <button type="submit" id="upload-btn">Upload Post</button>
+            </form>
+        </div>
+        <div class="content-section">
+            <h2>My Uploaded Posts</h2>
+            <div id="my-posts-container"></div>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW 5 - UPLOADER PROFILE VIEW -->
+<div id="uploader-profile-view" class="view">
+    <div id="profile-header-container" class="profile-header"></div>
+    <div class="posts-section-container">
+        <button class="back-btn" onclick="showView('viewer-posts-view')">← Back to Posts</button>
+        <h2 id="profile-posts-heading"></h2>
+        <div id="profile-posts-container"></div>
+    </div>
+</div>
+
+<!-- VIEW 6 - MESSAGE ADMIN -->
+<div id="message-admin-view" class="view">
+    <div class="content-section">
+        <button class="close-btn" onclick="showView('landing-view')">✖️</button>
+        <h1>Contact Administrator</h1>
+        <p style="text-align:center; color: var(--text-secondary);">Have a question or feedback? Let us know.</p>
+        <form id="message-admin-form">
+            <div class="form-field">
+                <label for="admin-message-name">Your Name / ID</label>
+                <input type="text" id="admin-message-name" required>
+            </div>
+            <div class="form-field">
+                <label for="admin-message-body">Message</label>
+                <textarea id="admin-message-body" rows="6" placeholder="Please describe your query in detail..." required></textarea>
+            </div>
+            <div class="form-field">
+                <button type="submit">Send Message</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+</div>
+<!-- Custom Alert/Confirm Modal HTML -->
+<div id="custom-alert-overlay" style="display: none;">
+    <div id="custom-alert-box">
+        <p id="custom-alert-message"></p>
+        <div id="custom-alert-buttons">
+            <button id="custom-alert-ok" class="action-button">OK</button>
+            <button id="custom-confirm-yes" class="action-button">Confirm</button>
+            <button id="custom-confirm-no" class="action-button cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// --- GLOBAL CONFIG & STATE ---
+const viewedPostsKey = "eduViewedPosts";
+const PAYMENT_REQUEST_MILESTONE = 10000;
+const PAYMENT_AMOUNT = 500;
+let allPosts = [];
+let uploaderProfiles = [];
+let currentUploader = null;
+let viewerUser = "";
+let selectedViewerSubject = null;
+let currentContentFilter = 'all'; // NEW: State for the content filter
+
+const subjects = [
+    "🧮 Mathematics", "⚛️ Physics", "🧪 Chemistry", "🧬 Biology", "📜 History", "🌍 Geography",
+    "💻 Computer Science", "📖 English Literature", "🏛️ Political Science", "💹 Economics", "🧠 Psychology",
+    "👥 Sociology", "🎨 Arts", "🎼 Music Theory", "🤔 Philosophy", "🌌 Astrophysics",
+    "🔬 Biotechnology", "🌱 Environmental Science", "🤖 Robotics", "📊 Data Science", "🧠 Machine Learning",
+    "🔒 Cybersecurity", "🌀 Quantum Mechanics", "⚗️ Organic Chemistry", "🧬 Genetics", "🏺 Ancient Civilizations",
+    "⛪ World Religions", "📈 Digital Marketing", "🎨 Graphic Design", "✍️ Creative Writing", "📰 Journalism",
+    "🗣️ Linguistics", "🗿 Anthropology", "⛏️ Archaeology", "💼 Business Studies", "🧾 Accounting",
+    "💰 Finance", "👥 Human Resources", "🌐 International Relations", "🎤 Public Speaking", "💸 Money Management", 
+    "☕ Java","🐍 Python", "♯ C#","➕ C++","🌐 HTML","📜 JS","🤖 Godot (GDScript)","🧾 Statistics","⚙️ Engineering Mechanics",
+"🧑‍⚕️ Medical Science","🌿 Botany", "🐾 Zoology", "🧱 Civil Engineering Basics", "🔌 Electrical Engineering", "⚡ Electronics", 
+"🚀 Aerospace Engineering", "🌍 Social Science & Humanities", "📚 Education", "🏛️ Law (Legal Studies)", "🌏 Global Studies",
+"👩‍🏫 Pedagogy (Teaching Methods)","🎭 Theatre & Drama","🎬 Film Studies","🖌️ Design Thinking","💻 Computer & Tech","📱 Mobile App Development",
+"☁️ Cloud Computing","🖥️ Operating Systems","🧩 Algorithms & Data Structures","🖼️ UI/UX Design","🕹️ Game Development","🧮 Artificial Intelligence",
+"🔍 Ethical Hacking","🔬 Advanced Science","🌡️ Thermodynamics","🧲 Electromagnetism","🌊 Fluid Mechanics","🧊 Solid State Physics","🧭 Earth Science",
+"🪐 Planetary Science","🧑‍🔬 Nanotechnology","💼 Professional & Life Skills", "📊 Project Management", "📚 Research Methodology", "📝 Technical Writing",
+"🏦 Entrepreneurship", "🗂️ Business Management","📱 Social Media Marketing",
+];
+
+// --- INITIALIZATION ---
+document.addEventListener("DOMContentLoaded", initializeApp);
+
+function initializeApp() {
+    viewerUser = "viewer_" + new Date().getTime();
+    populateSubjectGrids();
+    populateSubjectDropdown();
+    attachEventListeners();
+    showView('landing-view');
+}
+
+function populateSubjectGrids() {
+    const viewerGrid = document.getElementById('viewer-subject-grid');
+    const uploaderGrid = document.getElementById('uploader-subject-grid');
+    let gridHTML = '';
+    subjects.forEach(subject => {
+        gridHTML += `<div class="subject-item" data-subject="${subject}">${subject}</div>`;
+    });
+    viewerGrid.innerHTML = gridHTML;
+    uploaderGrid.innerHTML = gridHTML;
+}
+
+function populateSubjectDropdown() {
+    const selectElement = document.getElementById('uploader-reg-subject');
+    let optionsHTML = '<option value="" disabled selected>Select a subject</option>';
+    subjects.forEach(subject => {
+        optionsHTML += `<option value="${subject}">${subject}</option>`;
+    });
+    selectElement.innerHTML = optionsHTML;
+}
+
+function attachEventListeners() {
+    document.getElementById('go-to-viewer-btn').addEventListener('click', () => showView('viewer-subject-selection-view'));
+    document.getElementById('message-admin-btn').addEventListener('click', showMessageAdminView);
+    document.getElementById('join-btn').addEventListener('click', handleJoinClick);
+    document.getElementById('uploader-reg-form').addEventListener('submit', handleUploaderRegistration);
+    document.getElementById('viewer-subject-grid').addEventListener('click', (e) => handleSubjectSelection(e, 'viewer'));
+    document.getElementById('back-to-subjects-btn').addEventListener('click', () => showView('viewer-subject-selection-view'));
+    document.getElementById('uploader-subject-grid').addEventListener('click', (e) => handleSubjectSelection(e, 'uploader'));
+    document.getElementById('upload-form').addEventListener('submit', handlePostUpload);
+    document.getElementById('message-admin-form').addEventListener('submit', handleAdminMessageSend);
+    document.getElementById('state-search-btn').addEventListener('click', () => {
+        if (selectedViewerSubject) {
+            showPostsForSubject(selectedViewerSubject);
+        }
+    });
+    document.getElementById('logout-btn').addEventListener('click', handleLogout);
+    
+    // NEW: Add event listener for the new filter buttons
+    document.querySelector('.filter-container').addEventListener('click', handleFilterClick);
+
+    document.getElementById('payment-method-options').addEventListener('change', (e) => {
+        document.getElementById('upi-details').style.display = e.target.value === 'upi' ? 'block' : 'none';
+        document.getElementById('bank-details').style.display = e.target.value === 'bank' ? 'block' : 'none';
+    });
+}
+
+// NEW: Function to handle clicks on the content filter
+function handleFilterClick(event) {
+    if (event.target.classList.contains('filter-btn')) {
+        // Update the active button style
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        // Update the global filter state
+        currentContentFilter = event.target.dataset.filter;
+
+        // Re-render posts with the new filter
+        if (selectedViewerSubject) {
+            showPostsForSubject(selectedViewerSubject);
+        }
+    }
+}
+
+function handleSubjectSelection(event, userType) {
+    if (event.target.classList.contains('subject-item')) {
+        const selectedClass = 'selected';
+        const subject = event.target.dataset.subject;
+        
+        event.target.parentElement.querySelectorAll('.' + selectedClass).forEach(el => el.classList.remove(selectedClass));
+        event.target.classList.add(selectedClass);
+
+        if (userType === 'viewer') {
+            selectedViewerSubject = subject;
+            document.getElementById('state-search-input').value = '';
+
+            // NEW: Reset content filter UI and state when a new subject is chosen
+            currentContentFilter = 'all';
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+            
+            showPostsForSubject(subject);
+        } else { // 'uploader'
+            handleUploaderSubjectConfirmation(subject);
+        }
+    }
+}
+
+// --- VIEW MANAGEMENT ---
+function showView(viewId) {
+    // FIX: Find any videos in the currently visible view and pause them before switching.
+    const visibleViews = document.querySelectorAll('.view.visible');
+    visibleViews.forEach(view => {
+        const videos = view.querySelectorAll('video');
+        videos.forEach(video => {
+            video.pause(); // Stop playback
+            video.currentTime = 0; // Reset to the beginning
+        });
+    });
+    // End of fix
+
+    document.querySelectorAll('.view').forEach(v => {
+        v.classList.remove('visible');
+    });
+    document.getElementById(viewId).classList.add('visible');
+
+    if (viewId === 'viewer-subject-selection-view') {
+        selectedViewerSubject = null;
+        document.querySelectorAll('#viewer-subject-grid .subject-item').forEach(el => el.classList.remove('selected'));
+    }
+}
+
+
+// --- UPLOADER REGISTRATION & LOGIN ---
+function handleJoinClick() {
+    if (currentUploader) {
+        if (currentUploader.verified) {
+            showUploaderDashboard();
+        } else {
+            showUploaderVerification();
+        }
+    } else {
+        showView('uploader-registration-view');
+    }
+}
+
+function handleUploaderRegistration(event) {
+    event.preventDefault();
+    const name = document.getElementById('uploader-name').value.trim();
+    const avatarFile = document.getElementById('uploader-avatar').files[0];
+    const state = document.getElementById('uploader-state').value.trim();
+    const subject = document.getElementById('uploader-reg-subject').value;
+    const profession = document.getElementById('uploader-profession').value.trim();
+    const bio = document.getElementById('uploader-bio').value.trim();
+    const paymentMethod = document.getElementById('payment-method-options').value;
+    const upiId = document.getElementById('upi-id').value.trim();
+    const accountHolderName = document.getElementById('account-holder-name').value.trim();
+    const accountNumber = document.getElementById('account-number').value.trim();
+    const ifscCode = document.getElementById('ifsc-code').value.trim();
+    
+    let paymentDetails = { method: paymentMethod };
+    let paymentFieldsValid = true;
+
+    if (paymentMethod === 'upi') {
+        if (!upiId) paymentFieldsValid = false;
+        paymentDetails.upiId = upiId;
+    } else { // bank
+        if (!accountHolderName || !accountNumber || !ifscCode) paymentFieldsValid = false;
+        paymentDetails.accountHolderName = accountHolderName;
+        paymentDetails.accountNumber = accountNumber;
+        paymentDetails.ifscCode = ifscCode;
+    }
+
+    if (!name || !state || !subject || !profession) {
+        showCustomAlert("All profile fields except avatar and bio are required.");
+        return;
+    }
+    
+    if (!paymentFieldsValid) {
+        showCustomAlert("Please fill in all the required payment details for your chosen method.");
+        return;
+    }
+
+    if (uploaderProfiles.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+        showCustomAlert("This name is already taken. Please choose another one.");
+        return;
+    }
+      
+    if (avatarFile) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            finalizeRegistration(name, reader.result, state, subject, profession, bio, paymentDetails);
+        };
+        reader.readAsDataURL(avatarFile);
+    } else {
+        finalizeRegistration(name, null, state, subject, profession, bio, paymentDetails);
+    }
+}
+
+function finalizeRegistration(name, avatar, state, subject, profession, bio, paymentDetails) {
+    currentUploader = { 
+        name, 
+        avatar, 
+        state, 
+        subject, 
+        profession, 
+        bio,
+        paymentDetails,
+        verified: false,
+        followers: []
+    };
+    uploaderProfiles.push(currentUploader);
+    showCustomAlert("Registration successful! Please verify your subject to continue.");
+    document.getElementById('uploader-reg-form').reset();
+    showUploaderVerification();
+}
+
+function showUploaderVerification() {
+    document.querySelectorAll('#uploader-subject-grid .subject-item').forEach(el => el.classList.remove('selected'));
+    
+    document.getElementById('uploader-verification-prompt').innerHTML =
+        `To continue, please select your registered subject: <strong style="color:var(--text-accent);">${currentUploader.subject}</strong>`;
+
+    document.getElementById('uploader-verification-section').style.display = 'block';
+    document.getElementById('uploader-dashboard-section').style.display = 'none';
+    showView('uploader-view');
+}
+
+function handleUploaderSubjectConfirmation(selectedSubject) {
+    if (!selectedSubject) {
+        showCustomAlert("Please select a subject.");
+        return;
+    }
+    if (selectedSubject === currentUploader.subject) {
+        const profileIndex = uploaderProfiles.findIndex(p => p.name === currentUploader.name);
+        if (profileIndex > -1) {
+            uploaderProfiles[profileIndex].verified = true;
+            currentUploader.verified = true;
+        }
+        showUploaderDashboard();
+    } else {
+        showCustomAlert(`Process Rejected! You must select your registered subject: ${currentUploader.subject}`);
+        document.querySelectorAll('#uploader-subject-grid .subject-item.selected').forEach(el => el.classList.remove('selected'));
+    }
+}
+
+function showUploaderDashboard() {
+    document.getElementById('uploader-verification-section').style.display = 'none';
+    document.getElementById('uploader-dashboard-section').style.display = 'block';
+    document.getElementById('uploader-heading').textContent = `Uploading to: ${currentUploader.subject}`;
+    
+    const statsContainer = document.getElementById('uploader-stats-display');
+    const followerCount = currentUploader.followers ? currentUploader.followers.length : 0;
+    statsContainer.innerHTML = `<span>Followers: ${formatNumber(followerCount)}</span>`;
+
+    displayMyPosts();
+    showView('uploader-view');
+}
+
+// The logout function was already present and correct.
+async function handleLogout() {
+    const confirmed = await showCustomConfirm("Are you sure you want to log out?");
+    if (confirmed) {
+        currentUploader = null;
+        showCustomAlert("You have been logged out.");
+        showView('landing-view');
+    }
+}
+
+// --- VIEWER FUNCTIONALITY ---
+// UPDATED: This function now also filters by content type
+function showPostsForSubject(subject) {
+    document.getElementById('posts-heading').textContent = `Posts in ${subject}`;
+    
+    // 1. Filter by subject
+    let filteredPosts = allPosts.filter(post => post.subject === subject);
+    
+    // 2. Filter by content type (image, pdf, etc.) based on the global filter state
+    if (currentContentFilter !== 'all') {
+        filteredPosts = filteredPosts.filter(post => {
+            if (!post.file) return false;
+            // The filter value (e.g., 'image') is checked against the file's MIME type (e.g., 'image/png')
+            return post.file.type.startsWith(currentContentFilter);
+        });
+    }
+
+    // 3. Filter by state search query
+    const searchQuery = document.getElementById('state-search-input').value.trim().toLowerCase();
+    if (searchQuery) {
+        filteredPosts = filteredPosts.filter(post => {
+            const uploader = uploaderProfiles.find(p => p.name === post.uploaderName);
+            return uploader && uploader.state.toLowerCase().includes(searchQuery);
+        });
+    }
+    
+    const sortedPosts = filteredPosts.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    displayViewerPosts(sortedPosts, 'posts-container');
+    showView('viewer-posts-view');
+}
+
+function incrementViewCount(postTimestamp) {
+    let viewed = JSON.parse(sessionStorage.getItem(viewedPostsKey) || "[]");
+    if (!viewed.includes(postTimestamp)) {
+        const postIndex = allPosts.findIndex(p => p.timestamp === postTimestamp);
+        if (postIndex > -1) {
+            if (!allPosts[postIndex].views) {
+                allPosts[postIndex].views = 0;
+            }
+            allPosts[postIndex].views++;
+            viewed.push(postTimestamp);
+            sessionStorage.setItem(viewedPostsKey, JSON.stringify(viewed));
+        }
+    }
+}
+
+function displayViewerPosts(postsToDisplay, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = "";
+
+    if (postsToDisplay.length === 0) {
+        container.innerHTML = `<div class='empty-posts-message'><h3>No posts found.</h3><p>Try a different search or filter.</p></div>`;
+        return;
+    }
+
+    postsToDisplay.forEach((post, index) => {
+        incrementViewCount(post.timestamp);
+        
+        const uploaderProfile = uploaderProfiles.find(p => p.name === post.uploaderName) || { name: 'Unknown', avatar: null, state: 'N/A', profession: 'N/A', bio: '' };
+        const postElement = document.createElement("div");
+        postElement.className = "post";
+        const isLiked = post.likes && post.likes.includes(viewerUser);
+        const avatarSrc = uploaderProfile.avatar || 'https://via.placeholder.com/40';
+
+        let fileHTML = '';
+        if (post.file) {
+            if (post.file.type.startsWith('image/')) {
+                fileHTML = `<img src="${post.file.data}" alt="Uploaded Image">
+                            <a class="file-download-link" onclick="downloadFile('${post.file.data}', '${escapeHTML(post.file.name)}')">Download Image</a>`;
+            } else if (post.file.type.startsWith('video/')) {
+                fileHTML = `<video controls src="${post.file.data}"></video>
+                            <a class="file-download-link" onclick="downloadFile('${post.file.data}', '${escapeHTML(post.file.name)}')">Download Video</a>`;
+            } else if (post.file.type === 'application/pdf') {
+                fileHTML = `<a href="${post.file.data}" download="${escapeHTML(post.file.name)}" class="file-download-link">Download PDF: ${escapeHTML(post.file.name)}</a>`;
+            }
+        }
+
+        postElement.innerHTML = `
+            <div class="uploader-info">
+                <img src="${avatarSrc}" alt="avatar" class="uploader-avatar">
+                <div>
+                    <span class="uploader-name" onclick="showUploaderProfile('${escapeHTML(uploaderProfile.name)}')">${escapeHTML(uploaderProfile.name)}</span>
+                    <span class="uploader-details">(${escapeHTML(uploaderProfile.state)} | ${escapeHTML(uploaderProfile.profession || 'N/A')})</span>
+                </div>
+            </div>
+            ${uploaderProfile.bio ? `<p class="uploader-bio">${escapeHTML(uploaderProfile.bio)}</p>` : ''}
+            <p class="post-timestamp">${formatTimestamp(post.timestamp)}</p>
+            <p>${escapeHTML(post.text)}</p>
+            ${fileHTML}
+            <div class="post-actions">
+                <span class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${post.timestamp}')">❤️</span>
+                <span id="like-count-${post.timestamp}">${formatNumber(post.likes ? post.likes.length : 0)} Likes</span>
+                <span style="margin-left: 15px;">👁️ ${formatNumber(post.views || 0)} Views</span>
+            </div>
+            <div class="comment-section">
+                <h4>Comments (${formatNumber(post.comments ? post.comments.length : 0)})</h4>
+                <div class="comment-form">
+                    <textarea id="comment-text-${post.timestamp}" placeholder="Add a comment..."></textarea>
+                    <button onclick="addComment(event, '${post.timestamp}')">Comment</button>
+                </div>
+                <div id="comments-for-${post.timestamp}">${generateCommentsHTML(post.comments || [], post.timestamp)}</div>
+            </div>`;
+        container.appendChild(postElement);
+
+        if ((index + 1) % 3 === 0) {
+            const adElement = document.createElement('div');
+            adElement.className = 'ad-unit-placeholder';
+            adElement.innerHTML = `
+                <div style="text-align:center; padding: 20px; border: 1px dashed var(--border-color); margin: 20px 0; border-radius: 10px;">
+                    <p style="color: var(--text-secondary);">Advertisement</p>
+                    <!-- ADSENSE AD UNIT CODE GOES HERE -->
+                </div>
+            `;
+            container.appendChild(adElement);
+        }
+    });
+}
+
+function generateCommentsHTML(comments, postTimestamp) {
+    if (!comments || comments.length === 0) return "<p style='font-size:0.9em; color:#888;'>No comments yet.</p>";
+    return comments.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)).map((comment) => `
+        <div class="comment">
+             ${comment.commenter === viewerUser ? `<button class="delete-comment-btn" onclick="deleteComment('${postTimestamp}', '${comment.timestamp}')">×</button>` : ''}
+             <p class="commenter-id">by: ${comment.commenter.substring(0, 15)}...</p>
+             <p>${escapeHTML(comment.text)}</p>
+             <p class="comment-timestamp">${formatTimestamp(comment.timestamp)}</p>
+        </div>`).join('');
+}
+
+function toggleLike(timestamp) {
+    const postIndex = allPosts.findIndex(p => p.timestamp === timestamp);
+    if (postIndex === -1) return;
+    const post = allPosts[postIndex];
+    if (!post.likes) post.likes = [];
+
+    const likeBtn = document.querySelector(`.like-btn[onclick*="'${timestamp}'"]`);
+    const likeCountSpan = document.getElementById(`like-count-${timestamp}`);
+
+    if (post.likes.includes(viewerUser)) {
+        post.likes = post.likes.filter(user => user !== viewerUser);
+        likeBtn?.classList.remove("liked");
+    } else {
+        post.likes.push(viewerUser);
+        likeBtn?.classList.add("liked");
+    }
+
+    if (likeCountSpan) {
+        likeCountSpan.textContent = `${formatNumber(post.likes.length)} Likes`;
+    }
+}
+
+function addComment(event, timestamp) {
+    const commentInput = document.getElementById(`comment-text-${timestamp}`);
+    const commentText = commentInput.value.trim();
+    if (commentText === "") { showCustomAlert("Comment cannot be empty."); return; }
+    const postIndex = allPosts.findIndex(p => p.timestamp === timestamp);
+    if (postIndex === -1) return;
+    if (!allPosts[postIndex].comments) allPosts[postIndex].comments = [];
+    allPosts[postIndex].comments.push({ text: commentText, commenter: viewerUser, timestamp: new Date().toISOString() });
+    
+    if (document.getElementById('viewer-posts-view').classList.contains('visible')) {
+        showPostsForSubject(allPosts[postIndex].subject);
+    } else if (document.getElementById('uploader-profile-view').classList.contains('visible')) {
+        showUploaderProfile(allPosts[postIndex].uploaderName);
+    }
+}
+
+
+async function deleteComment(postTimestamp, commentTimestamp) {
+    const confirmed = await showCustomConfirm("Are you sure you want to delete this comment?");
+    if (!confirmed) return;
+    const postIndex = allPosts.findIndex(p => p.timestamp === postTimestamp);
+    if (postIndex > -1) {
+        allPosts[postIndex].comments = allPosts[postIndex].comments.filter(c => c.timestamp !== commentTimestamp);
+        
+        if (document.getElementById('viewer-posts-view').classList.contains('visible')) {
+            showPostsForSubject(allPosts[postIndex].subject);
+        } else if (document.getElementById('uploader-profile-view').classList.contains('visible')) {
+            showUploaderProfile(allPosts[postIndex].uploaderName);
+        }
+    }
+}
+
+// --- UPLOADER FUNCTIONALITY ---
+function displayMyPosts() {
+    const container = document.getElementById("my-posts-container");
+    const myPosts = allPosts
+        .filter(post => post.uploaderName === currentUploader.name)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    if (myPosts.length === 0) {
+        container.innerHTML = `<div class='empty-posts-message'><h3>You haven't uploaded any posts yet.</h3><p>Use the form above to share your knowledge!</p></div>`;
+        return;
+    }
+
+    container.innerHTML = myPosts.map(post => {
+        const likeCount = post.likes?.length || 0;
+        const viewCount = post.views || 0;
+        const requestsMade = post.paymentRequests || 0;
+        const isRequestable = likeCount >= (requestsMade + 1) * PAYMENT_REQUEST_MILESTONE && post.paymentStatus !== 'pending';
+        const isPending = post.paymentStatus === 'pending';
+        
+        let fileHTML = '';
+        if (post.file) {
+            if (post.file.type.startsWith('image/')) {
+                fileHTML = `<img src="${post.file.data}" alt="Uploaded Image">`;
+            } else if (post.file.type.startsWith('video/')) {
+                fileHTML = `<video controls src="${post.file.data}"></video>`;
+            } else if (post.file.type === 'application/pdf') {
+                fileHTML = `<a href="${post.file.data}" download="${post.file.name}" class="file-download-link">Download PDF: ${escapeHTML(post.file.name)}</a>`;
+            }
+        }
+
+
+        return `
+        <div class="post">
+            <div class="post-top-buttons">
+                 <button class="edit-post-btn" onclick="editPost('${post.timestamp}')">Edit</button>
+                 <button class="delete-post-btn" onclick="deletePost('${post.timestamp}')">Delete</button>
+            </div>
+            <p class="post-timestamp">${formatTimestamp(post.timestamp)}</p>
+            <p>${escapeHTML(post.text)}</p>
+            ${fileHTML}
+            <div class="post-interactions">
+                <span class="likes-display">❤️ ${formatNumber(likeCount)} Likes</span>
+                <span class="likes-display">${formatNumber(viewCount)} Views</span>
+                <button class="payment-request-btn" 
+                        onclick="handlePaymentRequest('${post.timestamp}')" 
+                        ${!isRequestable ? 'disabled' : ''}>
+                    ${isPending ? '⏳ Pending...' : 'Request Payment'}
+                </button>
+                <div class="comments-container">
+                    <h4>Comments (${formatNumber(post.comments ? post.comments.length : 0)})</h4>
+                    ${(post.comments && post.comments.length > 0) ? post.comments.sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp)).map(c => `
+                        <div class="comment">
+                            <p>${escapeHTML(c.text)}</p>
+                            <p class="comment-timestamp">by ${c.commenter.substring(0,15)}... on ${formatTimestamp(c.timestamp)}</p>
+                        </div>`).join('') : '<p style="color: #888; font-size: 0.9em;">No comments yet.</p>'}
+                </div>
+            </div>
+        </div>`}).join('');
+}
+
+async function sendRequestToAdminPanel(requestData) {
+    console.log("Simulating API call for payment request:", requestData);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return { success: true, message: "Request sent successfully (Simulated)." };
+}
+
+
+async function handlePaymentRequest(postTimestamp) {
+    const postIndex = allPosts.findIndex(p => p.timestamp === postTimestamp);
+    if (postIndex === -1) return;
+
+    const post = allPosts[postIndex];
+    const likeCount = post.likes?.length || 0;
+    const requestsMade = post.paymentRequests || 0;
+
+    if (likeCount < (requestsMade + 1) * PAYMENT_REQUEST_MILESTONE) {
+        showCustomAlert("This post is not yet eligible for a payment request.");
+        return;
+    }
+
+    if (post.paymentStatus === 'pending') {
+        showCustomAlert("A payment request for this post is already pending.");
+        return;
+    }
+
+    const confirmed = await showCustomConfirm(`Confirm payment request of ₹${PAYMENT_AMOUNT} for this post? This action will be sent to the admin for review.`);
+    if (!confirmed) return;
+    
+    const requestData = {
+        userName: currentUploader.name,
+        likes: likeCount,
+        paymentAmount: PAYMENT_AMOUNT,
+        postTimestamp: post.timestamp,
+        paymentDetails: currentUploader.paymentDetails,
+        requestTimestamp: new Date().toISOString()
+    };
+    
+    const apiResult = await sendRequestToAdminPanel(requestData);
+
+    if (apiResult.success) {
+        if (!post.paymentRequests) post.paymentRequests = 0;
+        post.paymentRequests++;
+        post.paymentStatus = 'pending';
+        
+        displayMyPosts();
+        
+        showCustomAlert(`Payment request sent successfully for ₹${PAYMENT_AMOUNT}. You will be notified upon review.`);
+    } else {
+        showCustomAlert(`Failed to send request: ${apiResult.message}`);
+    }
+}
+
+function handlePostUpload(event) {
+    event.preventDefault();
+    const postText = document.getElementById('post-text').value.trim();
+    if (postText === "") { showCustomAlert("Post text cannot be empty."); return; }
+    
+    const editingTimestamp = document.getElementById('editing-post-timestamp').value;
+
+    if(editingTimestamp) {
+        const postIndex = allPosts.findIndex(p => p.timestamp === editingTimestamp);
+        if(postIndex > -1) {
+            allPosts[postIndex].text = postText;
+            showCustomAlert("Post updated successfully!");
+            resetUploadForm();
+            displayMyPosts();
+        }
+    } else {
+        const file = document.getElementById('post-file').files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => createNewPost(postText, {
+                data: reader.result,
+                name: file.name,
+                type: file.type
+            });
+            reader.readAsDataURL(file);
+        } else {
+            createNewPost(postText, null);
+        }
+    }
+}
+
+function createNewPost(text, fileData) {
+    const newPost = {
+        uploaderName: currentUploader.name,
+        subject: currentUploader.subject,
+        text: text,
+        file: fileData,
+        timestamp: new Date().toISOString(),
+        likes: [],
+        comments: [],
+        views: 0,
+        paymentRequests: 0,
+        paymentStatus: 'none'
+    };
+
+    allPosts.push(newPost);
+    
+    resetUploadForm();
+    displayMyPosts();
+    showCustomAlert("Post uploaded successfully!");
+}
+
+async function deletePost(timestamp) {
+    const confirmed = await showCustomConfirm("Are you sure you want to permanently delete this post?");
+    if (!confirmed) return;
+    allPosts = allPosts.filter(post => post.timestamp !== timestamp);
+    displayMyPosts();
+}
+
+function editPost(timestamp) {
+    const post = allPosts.find(p => p.timestamp === timestamp);
+    if (!post) return;
+
+    document.getElementById('post-text').value = post.text;
+    document.getElementById('editing-post-timestamp').value = post.timestamp;
+    document.getElementById('upload-btn').textContent = 'Save Changes';
+    
+    document.getElementById('upload-form').scrollIntoView({ behavior: 'smooth' });
+    showCustomAlert('Editing post. File cannot be changed. Make your changes and click "Save Changes".');
+}
+
+function resetUploadForm() {
+    document.getElementById('upload-form').reset();
+    document.getElementById('editing-post-timestamp').value = '';
+    document.getElementById('upload-btn').textContent = 'Upload Post';
+}
+
+function showUploaderProfile(uploaderName) {
+    const profile = uploaderProfiles.find(p => p.name === uploaderName);
+    if (!profile) return;
+    
+    profile.followers = profile.followers || [];
+
+    const profileHeader = document.getElementById('profile-header-container');
+    const avatarSrc = profile.avatar || 'https://via.placeholder.com/100';
+    const isFollowing = profile.followers.includes(viewerUser);
+    
+    profileHeader.innerHTML = `
+        <img src="${avatarSrc}" alt="avatar">
+        <h2>${escapeHTML(profile.name)}</h2>
+        <p><strong>Subject:</strong> ${escapeHTML(profile.subject)}</p>
+        <p>${escapeHTML(profile.state)} | ${escapeHTML(profile.profession)}</p>
+        <p class="bio">${escapeHTML(profile.bio)}</p>
+        <div class="profile-stats">
+            <span>Followers: <span id="follower-count">${formatNumber(profile.followers.length)}</span></span>
+        </div>
+        ${ currentUploader && currentUploader.name === uploaderName ? '' :
+        `<button id="follow-btn" class="action-button follow-btn ${isFollowing ? 'followed' : ''}" onclick="toggleFollow('${escapeHTML(uploaderName)}')">
+            ${isFollowing ? 'Unfollow' : 'Follow'}
+        </button>`
+        }
+    `;
+
+    document.getElementById('profile-posts-heading').textContent = `Posts by ${escapeHTML(profile.name)}`;
+    const uploaderPosts = allPosts
+        .filter(post => post.uploaderName === uploaderName)
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+    displayViewerPosts(uploaderPosts, 'profile-posts-container');
+    showView('uploader-profile-view');
+}
+
+function toggleFollow(uploaderName) {
+    const profileIndex = uploaderProfiles.findIndex(p => p.name === uploaderName);
+    if (profileIndex === -1) return;
+
+    const profile = uploaderProfiles[profileIndex];
+    const followBtn = document.getElementById('follow-btn');
+    const followerCountEl = document.getElementById('follower-count');
+    const viewerIndex = profile.followers.indexOf(viewerUser);
+
+    if (viewerIndex > -1) {
+        // Unfollow
+        profile.followers.splice(viewerIndex, 1);
+        followBtn.textContent = 'Follow';
+        followBtn.classList.remove('followed');
+    } else {
+        // Follow
+        profile.followers.push(viewerUser);
+        followBtn.textContent = 'Unfollow';
+        followBtn.classList.add('followed');
+    }
+
+    followerCountEl.textContent = formatNumber(profile.followers.length);
+}
+
+// --- ADMIN MESSAGE FUNCTIONS ---
+function showMessageAdminView() {
+    const nameInput = document.getElementById('admin-message-name');
+    if (currentUploader) {
+        nameInput.value = currentUploader.name;
+    } else {
+        nameInput.value = viewerUser;
+    }
+    showView('message-admin-view');
+}
+
+async function handleAdminMessageSend(event) {
+    event.preventDefault();
+    const name = document.getElementById('admin-message-name').value;
+    const body = document.getElementById('admin-message-body').value;
+
+    const messageData = { from: name, body, timestamp: new Date().toISOString() };
+    
+    const result = await sendMessageToAdminPanel(messageData);
+    
+    if(result.success) {
+        showCustomAlert("Your message has been sent to the administrator. Thank you!");
+        document.getElementById('message-admin-form').reset();
+        showView('landing-view');
+    } else {
+        showCustomAlert(`Error: Could not send message. ${result.message}`);
+    }
+}
+
+async function sendMessageToAdminPanel(messageData) {
+    console.log("Sending message to admin panel:", messageData);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return { success: true, message: "Message received by server." };
+}
+
+
+// --- UTILITY FUNCTIONS ---
+function formatTimestamp(isoString) {
+    if (!isoString) return '';
+    return new Date(isoString).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+function escapeHTML(str) {
+    if (typeof str !== 'string') return '';
+    const p = document.createElement("p");
+    p.appendChild(document.createTextNode(str));
+    return p.innerHTML;
+}
+
+function formatNumber(num) {
+    if (num === null || num === undefined) return 0;
+    return new Intl.NumberFormat('en-US', {
+        notation: 'compact',
+        compactDisplay: 'short'
+    }).format(num);
+}
+
+function downloadFile(dataUrl, filename) {
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// --- Custom Alert/Confirm Functions ---
+function showCustomAlert(message) {
+    const overlay = document.getElementById('custom-alert-overlay');
+    const msgEl = document.getElementById('custom-alert-message');
+    const okBtn = document.getElementById('custom-alert-ok');
+    const confirmBtn = document.getElementById('custom-confirm-yes');
+    const cancelBtn = document.getElementById('custom-confirm-no');
+
+    msgEl.textContent = message;
+    okBtn.style.display = 'block';
+    confirmBtn.style.display = 'none';
+    cancelBtn.style.display = 'none';
+    overlay.style.display = 'flex';
+
+    okBtn.onclick = () => {
+        overlay.style.display = 'none';
+    };
+}
+
+function showCustomConfirm(message) {
+    return new Promise(resolve => {
+        const overlay = document.getElementById('custom-alert-overlay');
+        const msgEl = document.getElementById('custom-alert-message');
+        const okBtn = document.getElementById('custom-alert-ok');
+        const confirmBtn = document.getElementById('custom-confirm-yes');
+        const cancelBtn = document.getElementById('custom-confirm-no');
+
+        msgEl.textContent = message;
+        okBtn.style.display = 'none';
+        confirmBtn.style.display = 'inline-block';
+        cancelBtn.style.display = 'inline-block';
+        overlay.style.display = 'flex';
+
+        confirmBtn.onclick = () => {
+            overlay.style.display = 'none';
+            resolve(true);
+        };
+
+        cancelBtn.onclick = () => {
+            overlay.style.display = 'none';
+            resolve(false);
+        };
+    });
+}
+</script>
+</body>
+  </html>
